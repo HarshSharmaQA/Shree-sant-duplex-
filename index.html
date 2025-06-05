@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Society Data Table</title>
+
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #f4f7fa;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 16px;
+      font-weight: 700;
+      color: #0366d6;
+      text-align: center;
+      user-select: none;
+    }
+
+    /* Search */
+    .search-container {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    #search-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1.5px solid #ddd;
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+      outline-color: #0366d6;
+    }
+    #search-input:focus {
+      border-color: #0366d6;
+      box-shadow: 0 0 8px rgb(3 102 214 / 0.3);
+    }
+
+    /* Table Container */
+    .table-wrapper {
+      width: 100%;
+      max-width: 900px;
+      overflow-x: auto;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+      border-radius: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      user-select: none;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 600px;
+    }
+    thead {
+      background: #0366d6;
+      color: white;
+      user-select: none;
+    }
+    thead th {
+      padding: 14px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-align: left;
+      font-weight: 600;
+    }
+    tbody tr {
+      transition: background-color 0.25s ease;
+      cursor: default;
+    }
+    tbody tr:nth-child(even) {
+      background: #f8fbff;
+    }
+    tbody tr:hover {
+      background: #dcefff;
+    }
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+
+    /* Highlight matching text */
+    mark {
+      background: #fffa91;
+      color: #222;
+      border-radius: 3px;
+      padding: 0 3px;
+      font-weight: 600;
+    }
+
+    /* Action button */
+    button.get-bill {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    button.get-bill:hover {
+      background-color: #218838;
+    }
+    button.get-bill:active {
+      background-color: #1e7e34;
+    }
+
+    /* Error and empty messages */
+    #error {
+      color: #d32f2f;
+      font-weight: 600;
+      margin-top: 16px;
+      text-align: center;
+      min-height: 1.5em;
+      user-select: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .search-container {
+        max-width: 100%;
+      }
+      table {
+        font-size: 12px;
+        min-width: auto;
+      }
+      thead th, tbody td {
+        padding: 8px 10px;
+      }
+      button.get-bill {
+        padding: 5px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Society Data Table</h1>
+  <div class="search-container">
+    <input type="search" id="search-input" placeholder="Search by H.No, Amount, WhatsApp..." aria-label="Search in table" />
+  </div>
+  <div class="table-wrapper" aria-live="polite" aria-relevant="all" aria-atomic="true">
+    <table id="data-table" role="grid" aria-describedby="error"></table>
+  </div>
+  <div id="error" role="alert" aria-live="assertive"></div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzq7h5ecKaiHXCToXWzsMLWxlYGf5Nl8kRai57nO2GnYw4NQOap_v7kE6pcy-IJTObh9w/exec';
+
+    // Utility: Escape HTML to prevent XSS
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Utility: Highlight search term inside text
+    function highlightText(text, term) {
+      if (!term) return escapeHTML(text);
+      const regex = new RegExp(`(${term.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')})`, 'gi');
+      return escapeHTML(text).replace(regex, '<mark>$1</mark>');
+    }
+
+    // Create table with data and optional searchTerm highlight
+    function createTable(data, searchTerm = '') {
+      const table = document.getElementById('data-table');
+      table.innerHTML = '';
+
+      if (!data.length) {
+        document.getElementById('error').textContent = 'No records found.';
+        return;
+      } else {
+        document.getElementById('error').textContent = '';
+      }
+
+      // Build table head
+      const headers = Object.keys(data[0]);
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headers.forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+      });
+      // Extra Action column
+      const actionTh = document.createElement('th');
+      actionTh.textContent = 'Action';
+      headerRow.appendChild(actionTh);
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Build table body
+      const tbody = document.createElement('tbody');
+
+      data.forEach(rowData => {
+        const tr = document.createElement('tr');
+        headers.forEach(header => {
+          const td = document.createElement('td');
+
+          // Highlight matched text in search
+          td.innerHTML = highlightText(rowData[header] ?? '', searchTerm);
+
+          tr.appendChild(td);
+        });
+
+        // Add Action cell with conditional button
+        const actionTd = document.createElement('td');
+        if (rowData['Status/Note'] && rowData['Status/Note'].toString().trim() === '200') {
+          const btn = document.createElement('button');
+          btn.className = 'get-bill';
+          btn.type = 'button';
+          btn.textContent = 'Get Bill';
+          btn.addEventListener('click', () => {
+            // Replace this with your actual bill logic or link
+            alert(`Generating bill for H.No: ${rowData['H.No']} with amount ${rowData['Amount']} Rs.`);
+          });
+          actionTd.appendChild(btn);
+        } else {
+          actionTd.textContent = '-';
+          actionTd.style.color = '#888';
+          actionTd.style.fontStyle = 'italic';
+        }
+        tr.appendChild(actionTd);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+    }
+
+    // Fetch data and initialize table
+    async function fetchData() {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+
+        if (data.error) {
+          document.getElementById('error').textContent = `Error: ${data.error}`;
+          return;
+        }
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById('error').textContent = 'No data available.';
+          return;
+        }
+
+        window.appData = data; // save globally for filtering
+
+        createTable(data);
+      } catch (error) {
+        document.getElementById('error').textContent = `Failed to fetch data: ${error.message}`;
+      }
+    }
+
+    // Filter and update table on search input
+    function filterTable(term) {
+      const filtered = window.appData.filter(row => {
+        return Object.values(row).some(val => val && val.toString().toLowerCase().includes(term.toLowerCase()));
+      });
+      createTable(filtered, term);
+    }
+
+    // Event listeners
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      filterTable(e.target.value.trim());
+    });
+
+    // On page load
+    fetchData();
+  </script>
+</body>
+</html>
