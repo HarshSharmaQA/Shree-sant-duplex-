@@ -20,6 +20,65 @@
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark-mode {
+      background: #181c24;
+      color: #e3e6eb;
+    }
+    body.dark-mode .table-wrapper,
+    body.dark-mode .data-card {
+      background: #232837;
+      border-color: #333a4d;
+      color: #e3e6eb;
+    }
+    body.dark-mode table,
+    body.dark-mode thead th,
+    body.dark-mode tbody td {
+      background: #232837;
+      color: #e3e6eb;
+      border-color: #333a4d;
+    }
+    body.dark-mode thead {
+      background: #2d3650;
+      color: #fff;
+    }
+    body.dark-mode button.get-receipt {
+      background: #3bb273;
+      color: #fff;
+    }
+    body.dark-mode button.get-receipt:hover {
+      background: #2e8c5e;
+    }
+    body.dark-mode #error {
+      background: #2d3650;
+      color: #ffb4b4;
+      border-color: #3b4252;
+    }
+    body.dark-mode .modal-content {
+      background: #232837;
+      color: #e3e6eb;
+    }
+    body.dark-mode #search-input,
+    body.dark-mode select,
+    body.dark-mode button {
+      background: #232837;
+      color: #e3e6eb;
+      border-color: #333a4d;
+    }
+    body.dark-mode #search-input:focus {
+      border-color: #3bb273;
+      box-shadow: 0 0 8px #3bb27344;
+    }
+    body.dark-mode .close {
+      color: #aaa;
+    }
+    body.dark-mode .close:hover, body.dark-mode .close:focus {
+      color: #ffb4b4;
+    }
+    /* Smooth transitions for all */
+    * {
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
     }
     h1 {
       margin-bottom: 16px;
@@ -42,13 +101,14 @@
       font-size: 16px;
       border-radius: 8px;
       border: 1.5px solid #ddd;
-      transition: border-color 0.3s ease;
+      transition: all 0.3s ease;
       outline-offset: 2px;
       outline-color: #0366d6;
     }
     #search-input:focus {
       border-color: #0366d6;
       box-shadow: 0 0 8px rgb(3 102 214 / 0.3);
+      transform: translateY(-1px);
     }
 
     /* Table Container */
@@ -61,6 +121,10 @@
       background: white;
       border: 1px solid #ddd;
       user-select: none;
+      transition: all 0.3s ease;
+    }
+    .table-wrapper:hover {
+      box-shadow: 0 6px 16px rgb(0 0 0 / 0.15);
     }
 
     /* Table Styles */
@@ -82,16 +146,20 @@
       z-index: 10;
       text-align: left;
       font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    thead th:hover {
+      background: #0256b3;
     }
     tbody tr {
-      transition: background-color 0.25s ease;
+      transition: all 0.25s cubic-bezier(.4,2,.6,1);
       cursor: default;
     }
-    tbody tr:nth-child(even) {
-      background: #f8fbff;
-    }
-    tbody tr:hover {
+    tbody tr:hover, tbody tr:focus-within {
       background: #dcefff;
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 2px 12px 0 #0366d633;
+      z-index: 1;
     }
     tbody td {
       padding: 12px 16px;
@@ -109,23 +177,39 @@
     }
 
     /* Action button */
-    button.get-bill {
+    button.get-receipt {
       background-color: #28a745;
       color: white;
       border: none;
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
       font-size: 14px;
-      transition: background-color 0.3s ease;
+      transition: background 0.3s, box-shadow 0.2s, transform 0.2s;
       user-select: none;
+      box-shadow: 0 2px 8px rgb(40 167 69 / 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    button.get-bill:hover {
+    button.get-receipt:hover, button.get-receipt:focus {
       background-color: #218838;
+      transform: scale(1.07);
+      box-shadow: 0 4px 16px rgb(40 167 69 / 0.3);
+      outline: 2px solid #0366d6;
+      outline-offset: 2px;
     }
-    button.get-bill:active {
+    button.get-receipt:active {
       background-color: #1e7e34;
+      transform: translateY(0);
+    }
+    button:focus {
+      outline: 2px solid #0366d6;
+      outline-offset: 2px;
+    }
+    button.get-receipt:focus:not(:focus-visible) {
+      outline: none;
     }
 
     /* Error and empty messages */
@@ -136,6 +220,47 @@
       text-align: center;
       min-height: 1.5em;
       user-select: none;
+      padding: 12px;
+      border-radius: 6px;
+      background: #ffebee;
+      border: 1px solid #ffcdd2;
+    }
+
+    /* Card View Styles */
+    #card-view-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+    .data-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.07);
+      transition: all 0.3s ease;
+    }
+    .data-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgb(3 102 214 / 0.13);
+    }
+    .data-card .field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .data-card .field:last-child {
+      border-bottom: none;
+    }
+    .data-card .field-label {
+      font-weight: 600;
+      color: #0366d6;
+    }
+    .data-card .field-value {
+      color: #444;
     }
 
     /* Responsive */
@@ -156,23 +281,156 @@
       thead th, tbody td {
         padding: 8px 10px;
       }
-      button.get-bill {
-        padding: 5px 10px;
+      button.get-receipt {
+        padding: 6px 12px;
         font-size: 13px;
       }
+      .data-card {
+        padding: 16px;
+      }
+    }
+
+    /* Empty state illustration */
+    #empty-illustration img {
+      filter: drop-shadow(0 2px 8px #0001);
+    }
+
+    /* Receipt modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5); /* solid overlay */
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      padding: 32px 24px 24px 24px;
+      max-width: 420px;
+      width: 95vw;
+      position: relative;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .close {
+      color: #222;
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      font-size: 28px;
+      font-weight: bold;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 10001;
+      transition: color 0.2s;
+    }
+    .close:hover, .close:focus { color: #d32f2f; }
+    .modal-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 18px;
+      width: 100%;
+    }
+    @media (max-width: 600px) {
+      .modal-content {
+        padding: 12px 2vw 16px 2vw;
+        max-width: 98vw;
+      }
+      .close { top: 8px; right: 10px; font-size: 24px; }
+      .modal-actions { gap: 8px; }
+    }
+    @keyframes modalIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .paid-badge {
+      display: inline-block;
+      background: #28a745;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 1px 4px #28a74522;
+    }
+
+    #whatsapp-modal input:focus {
+      border-color: #0366d6;
+      box-shadow: 0 0 8px #0366d633;
+    }
+    #whatsapp-modal .modal-content {
+      max-width: 350px;
     }
   </style>
 </head>
 <body>
   <h1>Society Data Table</h1>
   <div class="search-container">
-    <input type="search" id="search-input" placeholder="Search by H.No, Amount, WhatsApp..." aria-label="Search in table" />
+    <input type="search" id="search-input" placeholder="Search by H.No, Amount, WhatsApp..." aria-label="Search in table" autocomplete="off" />
   </div>
-  <div class="table-wrapper" aria-live="polite" aria-relevant="all" aria-atomic="true">
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;width:100%;max-width:900px;justify-content:space-between;">
+    <button id="export-csv" style="background:#0366d6;color:white;border:none;padding:8px 18px;border-radius:6px;font-weight:600;cursor:pointer;">Export to CSV</button>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <label for="filter-select" style="font-weight:600;">Filter:</label>
+      <select id="filter-select" style="padding:7px 12px;border-radius:6px;font-size:15px;">
+        <option value="all">All</option>
+        <option value="paid">Paid</option>
+        <option value="unpaid">Unpaid</option>
+      </select>
+      <button id="dark-mode-toggle" aria-label="Toggle dark mode" style="background:#eee;color:#0366d6;border:none;padding:7px 16px;border-radius:6px;font-weight:600;cursor:pointer;">🌙</button>
+      <label for="view-toggle" style="font-weight:600;">View:</label>
+      <button id="view-toggle" style="background:#eee;color:#0366d6;border:none;padding:7px 16px;border-radius:6px;font-weight:600;cursor:pointer;">Card View</button>
+    </div>
+  </div>
+  <div class="table-wrapper" id="table-wrapper" aria-live="polite" aria-relevant="all" aria-atomic="true">
     <table id="data-table" role="grid" aria-describedby="error"></table>
   </div>
+  <div id="card-view-wrapper" style="display:none;width:100%;max-width:900px;"></div>
   <div id="error" role="alert" aria-live="assertive"></div>
-
+  <div id="receipt-modal" class="modal" style="display:none;">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="receipt-modal-title">
+      <button class="close" id="close-modal" tabindex="0" aria-label="Close receipt modal">&times;</button>
+      <div style="text-align:center;margin-bottom:18px;">
+        <img src="https://img.icons8.com/fluency/48/receipt-approved.png" alt="Logo" style="width:48px;height:48px;">
+        <h2 id="receipt-modal-title" style="margin:8px 0 0 0;font-size:1.4rem;">Shree Sant Duplex</h2>
+        <div style="color:#888;font-size:0.95rem;">Payment Receipt</div>
+      </div>
+      <div id="receipt-details" style="width:100%;"></div>
+      <div class="modal-actions">
+        <button id="print-receipt" class="get-receipt" style="background:#0366d6;">Print</button>
+        <button id="download-receipt" class="get-receipt" style="background:#ff9800;">Download</button>
+        <button id="save-receipt" class="get-receipt" style="background:#009688;">Save Receipt</button>
+      </div>
+    </div>
+  </div>
+  <div id="empty-illustration" style="display:none;flex-direction:column;align-items:center;justify-content:center;margin:40px 0;">
+    <img src="https://img.icons8.com/fluency/96/empty-box.png" alt="No Data" style="width:80px;height:80px;">
+    <div id="empty-message" style="margin-top:18px;font-size:1.2rem;color:#888;text-align:center;"></div>
+  </div>
+  <noscript>
+    <div style="color: #d32f2f; font-weight: bold; text-align: center; margin-top: 20px;">
+      JavaScript is required to view this table.
+    </div>
+  </noscript>
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbzq7h5ecKaiHXCToXWzsMLWxlYGf5Nl8kRai57nO2GnYw4NQOap_v7kE6pcy-IJTObh9w/exec';
 
@@ -194,15 +452,49 @@
       return escapeHTML(text).replace(regex, '<mark>$1</mark>');
     }
 
+    // Sorting state
+    let sortState = { key: null, direction: 'asc' };
+    // Store filtered data for export
+    let filteredData = [];
+
+    // Utility: Convert array of objects to CSV string
+    function toCSV(data) {
+      if (!data.length) return '';
+      const headers = Object.keys(data[0]);
+      const csvRows = [headers.map(h => '"' + h.replace(/"/g, '""') + '"').join(',')];
+      for (const row of data) {
+        csvRows.push(headers.map(h => '"' + (row[h] ? row[h].toString().replace(/"/g, '""') : '') + '"').join(','));
+      }
+      return csvRows.join('\r\n');
+    }
+
+    // Download CSV file
+    function downloadCSV(data) {
+      const csv = toCSV(data);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'society_data.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     // Create table with data and optional searchTerm highlight
     function createTable(data, searchTerm = '') {
+      filteredData = data; // Save for export
       const table = document.getElementById('data-table');
       table.innerHTML = '';
-
+      const emptyDiv = document.getElementById('empty-illustration');
       if (!data.length) {
-        document.getElementById('error').textContent = 'No records found.';
+        document.getElementById('error').textContent = '';
+        emptyDiv.style.display = 'flex';
+        document.getElementById('empty-message').textContent = 'No records found. Try a different search or filter.';
         return;
       } else {
+        emptyDiv.style.display = 'none';
         document.getElementById('error').textContent = '';
       }
 
@@ -212,7 +504,27 @@
       const headerRow = document.createElement('tr');
       headers.forEach(headerText => {
         const th = document.createElement('th');
+        th.scope = 'col';
+        th.style.cursor = 'pointer';
+        th.tabIndex = 0;
+        th.setAttribute('aria-label', `Sort by ${headerText}`);
         th.textContent = headerText;
+        // Add sort indicator
+        if (sortState.key === headerText) {
+          th.innerHTML += sortState.direction === 'asc' ? ' ▲' : ' ▼';
+        }
+        th.addEventListener('click', () => {
+          if (sortState.key === headerText) {
+            sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+          } else {
+            sortState.key = headerText;
+            sortState.direction = 'asc';
+          }
+          sortAndRender();
+        });
+        th.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') th.click();
+        });
         headerRow.appendChild(th);
       });
       // Extra Action column
@@ -225,34 +537,42 @@
       // Build table body
       const tbody = document.createElement('tbody');
 
-      data.forEach(rowData => {
+      data.forEach((rowData, rowIndex) => {
         const tr = document.createElement('tr');
+        tr.tabIndex = 0; // Make row focusable for accessibility
         headers.forEach(header => {
           const td = document.createElement('td');
-
-          // Highlight matched text in search
           td.innerHTML = highlightText(rowData[header] ?? '', searchTerm);
-
           tr.appendChild(td);
         });
 
         // Add Action cell with conditional button
         const actionTd = document.createElement('td');
-        if (rowData['Status/Note'] && rowData['Status/Note'].toString().trim() === '200') {
+        const amount = parseFloat(rowData['Payment'] || rowData['Amount'] || 0);
+        const houseNo = parseInt(rowData['H.No'], 10);
+        if (!isNaN(houseNo) && !isNaN(amount) && amount > 0) {
+          actionTd.innerHTML = '<span class="paid-badge">Paid</span> ';
+          // Show receipt modal directly
           const btn = document.createElement('button');
-          btn.className = 'get-bill';
-          btn.type = 'button';
-          btn.textContent = 'Get Bill';
+          btn.className = 'get-receipt';
+          btn.textContent = 'Get Receipt';
           btn.addEventListener('click', () => {
-            // Replace this with your actual bill logic or link
-            alert(`Generating bill for H.No: ${rowData['H.No']} with amount ${rowData['Amount']} Rs.`);
+            showReceiptModal({
+              houseNo: rowData['H.No'],
+              name: rowData['Name'] || '',
+              amount: amount,
+              date: rowData['Date'] || new Date().toLocaleDateString(),
+              payment: rowData['Payment'] || rowData['Amount'] || 0,
+              society: 'Shree Sant Duplex',
+              charge: amount
+            });
           });
           actionTd.appendChild(btn);
-        } else {
-          actionTd.textContent = '-';
+        } else if (!isNaN(houseNo) && houseNo > 59) {
+          actionTd.textContent = 'No Amount';
           actionTd.style.color = '#888';
           actionTd.style.fontStyle = 'italic';
-        }
+        } // else leave blank for summary/total/blank rows
         tr.appendChild(actionTd);
 
         tbody.appendChild(tr);
@@ -261,8 +581,166 @@
       table.appendChild(tbody);
     }
 
+    // Card View rendering
+    function createCardView(data, searchTerm = '') {
+      const wrapper = document.getElementById('card-view-wrapper');
+      wrapper.innerHTML = '';
+      const emptyDiv = document.getElementById('empty-illustration');
+      if (!data.length) {
+        document.getElementById('error').textContent = '';
+        emptyDiv.style.display = 'flex';
+        document.getElementById('empty-message').textContent = 'No records found. Try a different search or filter.';
+        return;
+      } else {
+        emptyDiv.style.display = 'none';
+        document.getElementById('error').textContent = '';
+      }
+      const fragment = document.createDocumentFragment();
+      data.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'data-card';
+        
+        // Create fields container
+        const fieldsContainer = document.createElement('div');
+        fieldsContainer.className = 'fields-container';
+        
+        for (const [key, value] of Object.entries(row)) {
+          const field = document.createElement('div');
+          field.className = 'field';
+          field.innerHTML = `
+            <span class="field-label">${escapeHTML(key)}</span>
+            <span class="field-value">${highlightText(value ?? '', searchTerm)}</span>
+          `;
+          fieldsContainer.appendChild(field);
+        }
+        card.appendChild(fieldsContainer);
+
+        // Action button
+        const actionDiv = document.createElement('div');
+        actionDiv.style.marginTop = '16px';
+        actionDiv.style.display = 'flex';
+        actionDiv.style.justifyContent = 'flex-end';
+        
+        const amount = parseFloat(row['Payment'] || row['Amount'] || 0);
+        const houseNo = parseInt(row['H.No'], 10);
+        if (!isNaN(amount) && amount > 0) {
+          actionDiv.innerHTML = '<span class="paid-badge">Paid</span> ';
+          // Show receipt modal directly
+          const btn = document.createElement('button');
+          btn.className = 'get-receipt';
+          btn.textContent = 'Get Receipt';
+          btn.addEventListener('click', () => {
+            showReceiptModal({
+              houseNo: row['H.No'],
+              name: row['Name'] || '',
+              amount: amount,
+              date: row['Date'] || new Date().toLocaleDateString(),
+              payment: row['Payment'] || row['Amount'] || 0,
+              society: 'Shree Sant Duplex',
+              charge: amount
+            });
+          });
+          actionDiv.appendChild(btn);
+        } else if (!isNaN(houseNo) && houseNo > 59) {
+          const noAmount = document.createElement('div');
+          noAmount.textContent = 'No Amount';
+          noAmount.style.color = '#888';
+          noAmount.style.fontStyle = 'italic';
+          actionDiv.appendChild(noAmount);
+        } // else (for H.No <= 59 and no amount) leave blank
+        card.appendChild(actionDiv);
+        wrapper.appendChild(card);
+      });
+    }
+
+    // Add Card View CSS
+    const cardViewStyle = document.createElement('style');
+    cardViewStyle.textContent = `
+      #card-view-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .data-card {
+        transition: box-shadow 0.2s;
+      }
+      .data-card:hover {
+        box-shadow: 0 4px 16px rgb(3 102 214 / 0.13);
+      }
+      @media (max-width: 600px) {
+        #card-view-wrapper {
+          padding: 0;
+        }
+        .data-card {
+          padding: 12px 8px 10px 8px;
+        }
+      }
+    `;
+    document.head.appendChild(cardViewStyle);
+
+    // View toggle logic
+    let currentView = 'table';
+    function renderView(data, searchTerm = '') {
+      if (currentView === 'table') {
+        document.getElementById('table-wrapper').style.display = '';
+        document.getElementById('card-view-wrapper').style.display = 'none';
+        createTable(data, searchTerm);
+      } else {
+        document.getElementById('table-wrapper').style.display = 'none';
+        document.getElementById('card-view-wrapper').style.display = '';
+        createCardView(data, searchTerm);
+      }
+    }
+    document.getElementById('view-toggle').addEventListener('click', function() {
+      currentView = currentView === 'table' ? 'card' : 'table';
+      this.textContent = currentView === 'table' ? 'Card View' : 'Table View';
+      // Re-render with current filtered/sorted data
+      sortAndRender(document.getElementById('search-input').value.trim());
+    });
+
+    // Filter logic
+    let currentFilter = 'all';
+    document.getElementById('filter-select').addEventListener('change', function() {
+      currentFilter = this.value;
+      sortAndRender(document.getElementById('search-input').value.trim());
+    });
+
+    // Sort and render table
+    function sortAndRender(searchTerm = document.getElementById('search-input').value.trim()) {
+      let data = window.appData.slice();
+      if (searchTerm) {
+        data = data.filter(row => Object.values(row).some(val => val && val.toString().toLowerCase().includes(searchTerm.toLowerCase())));
+      }
+      // Filter by payment status
+      if (currentFilter === 'paid') {
+        data = data.filter(row => {
+          const amount = parseFloat((row['Payment'] || row['Amount'] || '').toString().trim());
+          return !isNaN(amount) && amount > 0;
+        });
+      } else if (currentFilter === 'unpaid') {
+        data = data.filter(row => {
+          const amount = parseFloat((row['Payment'] || row['Amount'] || '').toString().trim());
+          return isNaN(amount) || amount <= 0;
+        });
+      }
+      if (sortState.key) {
+        data.sort((a, b) => {
+          const valA = a[sortState.key] ?? '';
+          const valB = b[sortState.key] ?? '';
+          if (!isNaN(valA) && !isNaN(valB)) {
+            return sortState.direction === 'asc' ? valA - valB : valB - valA;
+          }
+          return sortState.direction === 'asc'
+            ? valA.toString().localeCompare(valB.toString())
+            : valB.toString().localeCompare(valA.toString());
+        });
+      }
+      renderView(data, searchTerm);
+    }
+
     // Fetch data and initialize table
     async function fetchData() {
+      setLoading(true);
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -278,25 +756,126 @@
         }
 
         window.appData = data; // save globally for filtering
-
-        createTable(data);
+        sortState = { key: null, direction: 'asc' };
+        sortAndRender();
       } catch (error) {
         document.getElementById('error').textContent = `Failed to fetch data: ${error.message}`;
+      } finally {
+        setLoading(false);
       }
     }
 
     // Filter and update table on search input
     function filterTable(term) {
-      const filtered = window.appData.filter(row => {
-        return Object.values(row).some(val => val && val.toString().toLowerCase().includes(term.toLowerCase()));
-      });
-      createTable(filtered, term);
+      sortAndRender(term);
+    }
+
+    // Debounce utility to limit function calls
+    function debounce(fn, delay) {
+      let timer = null;
+      return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+
+    // Loading indicator
+    function setLoading(isLoading) {
+      const errorDiv = document.getElementById('error');
+      if (isLoading) {
+        errorDiv.textContent = 'Loading...';
+      } else if (errorDiv.textContent === 'Loading...') {
+        errorDiv.textContent = '';
+      }
     }
 
     // Event listeners
-    document.getElementById('search-input').addEventListener('input', (e) => {
+    document.getElementById('search-input').addEventListener('input', debounce((e) => {
       filterTable(e.target.value.trim());
+    }, 200));
+    document.getElementById('export-csv').addEventListener('click', () => {
+      if (!filteredData.length) {
+        alert('No data to export.');
+        return;
+      }
+      downloadCSV(filteredData);
     });
+
+    // Add JS for dark mode
+    document.getElementById('dark-mode-toggle').onclick = function() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+      this.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    };
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('dark-mode-toggle').textContent = '☀️';
+    }
+
+    // Store the last shown receipt name globally
+    let lastReceiptName = 'user';
+
+    function showReceiptModal(data) {
+      lastReceiptName = (data.name || 'user').replace(/\s+/g, '');
+      const modal = document.getElementById('receipt-modal');
+      const details = document.getElementById('receipt-details');
+      details.innerHTML = `
+        <div style="text-align:center;margin-bottom:18px;">
+          <img src="https://img.icons8.com/fluency/48/receipt-approved.png" alt="Logo" style="width:48px;height:48px;">
+          <h2 style="margin:8px 0 0 0;font-size:1.4rem;">Shree Sant Duplex</h2>
+          <div style="color:#888;font-size:0.95rem;">Payment Receipt</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:18px;">
+          <tr>
+            <td style="font-weight:600;padding:6px 0;">House No:</td>
+            <td style="padding:6px 0;">${escapeHTML(data.houseNo)}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;padding:6px 0;">Name:</td>
+            <td style="padding:6px 0;">${escapeHTML(data.name)}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;padding:6px 0;">Date:</td>
+            <td style="padding:6px 0;">${escapeHTML(data.date)}</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;padding:6px 0;">Maintenance Charge:</td>
+            <td style="padding:6px 0;">₹${escapeHTML(data.charge || data.amount)}</td>
+          </tr>
+        </table>
+        <div style="text-align:right;color:#666;font-size:0.95rem;">Thank you for your payment!</div>
+      `;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Add html2pdf.js via CDN if not already present
+    if (!window.html2pdf) {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      document.head.appendChild(script);
+    }
+
+    // Download Receipt as PDF
+    document.getElementById('download-receipt').onclick = function() {
+      const receiptContent = document.querySelector('#receipt-modal .modal-content');
+      // Clone and remove modal buttons for cleaner PDF
+      const clone = receiptContent.cloneNode(true);
+      const btns = clone.querySelectorAll('button, .close');
+      btns.forEach(btn => btn.remove());
+      html2pdf().from(clone).set({
+        margin: 0.5,
+        filename: 'receipt-' + lastReceiptName + '.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      }).save();
+    };
+
+    // Add event listener for close button
+    document.getElementById('close-modal').onclick = function() {
+      document.getElementById('receipt-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    };
 
     // On page load
     fetchData();
