@@ -304,7 +304,7 @@
       top: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0,0,0,0.5); /* solid overlay */
+      background: rgba(0,0,0,0.5);
       align-items: center;
       justify-content: center;
     }
@@ -320,6 +320,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      font-size: 1.08rem;
     }
     .close {
       color: #222;
@@ -341,14 +342,33 @@
       justify-content: center;
       margin-top: 18px;
       width: 100%;
+      flex-wrap: wrap;
+    }
+    .get-receipt {
+      min-width: 100px;
+      font-size: 1rem;
+      border-radius: 6px;
+      padding: 10px 0;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgb(40 167 69 / 0.08);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      outline: none;
+      border: none;
+      margin-bottom: 4px;
+    }
+    .get-receipt:focus {
+      outline: 2px solid #0366d6;
+      outline-offset: 2px;
     }
     @media (max-width: 600px) {
       .modal-content {
-        padding: 12px 2vw 16px 2vw;
+        padding: 10px 2vw 12px 2vw;
         max-width: 98vw;
+        font-size: 0.98rem;
       }
       .close { top: 8px; right: 10px; font-size: 24px; }
       .modal-actions { gap: 8px; }
+      .get-receipt { font-size: 0.98rem; min-width: 90px; padding: 9px 0; }
     }
     @keyframes modalIn {
       0% {
@@ -416,9 +436,8 @@
       </div>
       <div id="receipt-details" style="width:100%;"></div>
       <div class="modal-actions">
-        <button id="print-receipt" class="get-receipt" style="background:#0366d6;">Print</button>
         <button id="download-receipt" class="get-receipt" style="background:#ff9800;">Download</button>
-        <button id="save-receipt" class="get-receipt" style="background:#009688;">Save Receipt</button>
+    
       </div>
     </div>
   </div>
@@ -815,67 +834,132 @@
     // Store the last shown receipt name globally
     let lastReceiptName = 'user';
 
-    function showReceiptModal(data) {
-      lastReceiptName = (data.name || 'user').replace(/\s+/g, '');
-      const modal = document.getElementById('receipt-modal');
-      const details = document.getElementById('receipt-details');
-      details.innerHTML = `
-        <div style="text-align:center;margin-bottom:18px;">
-          <img src="https://img.icons8.com/fluency/48/receipt-approved.png" alt="Logo" style="width:48px;height:48px;">
-          <h2 style="margin:8px 0 0 0;font-size:1.4rem;">Shree Sant Duplex</h2>
-          <div style="color:#888;font-size:0.95rem;">Payment Receipt</div>
+function showReceiptModal(data) {
+  lastReceiptName = (data.name || 'user').replace(/\s+/g, '');
+  const modal = document.getElementById('receipt-modal');
+  const details = document.getElementById('receipt-details');
+  
+  details.innerHTML = `
+    <div class="receipt-container" style="padding: 20px; border-radius: 8px; border: 1px solid #eee;">
+      <div class="receipt-header" style="text-align: center; margin-bottom: 24px;">
+        <div style="font-size: 1.2rem; font-weight: 600; color: #2d3748;">Payment Receipt</div>
+        <div style="color: #718096; font-size: 0.9rem;">Transaction ID: ${generateTransactionId()}</div>
+      </div>
+      
+      <div class="receipt-details" style="display: grid; gap: 16px; margin-bottom: 24px;">
+        <div class="detail-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+          <span style="color: #4a5568; font-weight: 500;">House No</span>
+          <span style="color: #2d3748; font-weight: 600;">${escapeHTML(data.houseNo)}</span>
         </div>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:18px;">
-          <tr>
-            <td style="font-weight:600;padding:6px 0;">House No:</td>
-            <td style="padding:6px 0;">${escapeHTML(data.houseNo)}</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;padding:6px 0;">Name:</td>
-            <td style="padding:6px 0;">${escapeHTML(data.name)}</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;padding:6px 0;">Date:</td>
-            <td style="padding:6px 0;">${escapeHTML(data.date)}</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;padding:6px 0;">Maintenance Charge:</td>
-            <td style="padding:6px 0;">₹${escapeHTML(data.charge || data.amount)}</td>
-          </tr>
-        </table>
-        <div style="text-align:right;color:#666;font-size:0.95rem;">Thank you for your payment!</div>
-      `;
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
+        
+        <div class="detail-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+          <span style="color: #4a5568; font-weight: 500;">Name</span>
+          <span style="color: #2d3748; font-weight: 600;">${escapeHTML(data.name)}</span>
+        </div>
+        
+        <div class="detail-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0;">
+          <span style="color: #4a5568; font-weight: 500;">Date</span>
+          <span style="color: #2d3748; font-weight: 600;">${escapeHTML(data.date)}</span>
+        </div>
+        
+        <div class="detail-row" style="display: flex; justify-content: space-between; padding: 12px 0; background: #f7fafc; border-radius: 6px; margin-top: 8px;">
+          <span style="color: #2d3748; font-weight: 600; padding-left: 12px;">Maintenance Charge</span>
+          <span style="color: #2c5282; font-weight: 700; padding-right: 12px;">₹${escapeHTML(data.charge || data.amount)}</span>
+        </div>
+      </div>
+      
+      <div class="receipt-footer" style="text-align: center; margin-top: 24px;">
+        <div style="color: #48bb78; font-weight: 600; margin-bottom: 8px;">Payment Successful</div>
+        <div style="color: #718096; font-size: 0.9rem;">Thank you for your payment!</div>
+      </div>
+    </div>
+  `;
+  
+  // Show modal with animation
+  modal.style.display = 'flex';
+  modal.style.animation = 'fadeIn 0.3s ease-out';
+  document.body.style.overflow = 'hidden';
+}
+
+// Generate unique transaction ID
+function generateTransactionId() {
+  return 'TXN' + Date.now().toString(36).toUpperCase();
+}
+
+// Add html2pdf.js via CDN if not already present
+if (!window.html2pdf) {
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  document.head.appendChild(script);
+}
+
+// Download Receipt as PDF with enhanced styling
+document.getElementById('download-receipt').onclick = function() {
+  const receiptContent = document.querySelector('#receipt-modal .modal-content');
+  const clone = receiptContent.cloneNode(true);
+  const btns = clone.querySelectorAll('button, .close');
+  btns.forEach(btn => btn.remove());
+  
+  html2pdf().from(clone).set({
+    margin: [0.5, 0.5],
+    filename: `receipt-${lastReceiptName}-${Date.now()}.pdf`,
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { 
+      unit: 'in', 
+      format: 'a4', 
+      orientation: 'portrait'
     }
+  }).save();
+  
+  // Show success toast
+  showToast('Receipt downloaded successfully!');
+};
 
-    // Add html2pdf.js via CDN if not already present
-    if (!window.html2pdf) {
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      document.head.appendChild(script);
-    }
+// Modal close handlers with smooth animations
+function closeModal() {
+  const modal = document.getElementById('receipt-modal');
+  modal.style.animation = 'fadeOut 0.2s ease-out';
+  setTimeout(() => {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 200);
+}
 
-    // Download Receipt as PDF
-    document.getElementById('download-receipt').onclick = function() {
-      const receiptContent = document.querySelector('#receipt-modal .modal-content');
-      // Clone and remove modal buttons for cleaner PDF
-      const clone = receiptContent.cloneNode(true);
-      const btns = clone.querySelectorAll('button, .close');
-      btns.forEach(btn => btn.remove());
-      html2pdf().from(clone).set({
-        margin: 0.5,
-        filename: 'receipt-' + lastReceiptName + '.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      }).save();
-    };
+document.getElementById('close-modal').onclick = closeModal;
 
-    // Add event listener for close button
-    document.getElementById('close-modal').onclick = function() {
-      document.getElementById('receipt-modal').style.display = 'none';
-      document.body.style.overflow = '';
-    };
+document.getElementById('receipt-modal').onclick = function(e) {
+  if (e.target === this) closeModal();
+};
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Simple toast notification
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #48bb78;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 10000;
+    animation: slideUp 0.3s ease-out;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'slideDown 0.3s ease-out';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
 
     // On page load
     fetchData();
