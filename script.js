@@ -24,10 +24,30 @@ async function fetchData() {
 
 function createTable(data) {
     const table = document.getElementById('data-table');
-    table.innerHTML = ''; // Clear existing table content
+    if (!table) return;
+    table.innerHTML = '';
+
+    // Filter data for current month
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const filteredData = data.filter(row => {
+        // Try to find a date field (case-insensitive)
+        const dateKey = Object.keys(row).find(k => k.toLowerCase().includes('date'));
+        if (!dateKey) return false;
+        const dateValue = row[dateKey];
+        if (!dateValue) return false;
+        const parsedDate = new Date(dateValue);
+        return parsedDate.getMonth() === currentMonth && parsedDate.getFullYear() === currentYear;
+    });
+
+    if (filteredData.length === 0) {
+        table.innerHTML = '<tr><td colspan="100%">No records for the current month.</td></tr>';
+        return;
+    }
 
     // Create header row
-    const headers = Object.keys(data[0]);
+    const headers = Object.keys(filteredData[0]);
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
     headers.forEach(headerText => {
@@ -40,7 +60,7 @@ function createTable(data) {
 
     // Create table body
     const tbody = document.createElement('tbody');
-    data.forEach(rowData => {
+    filteredData.forEach(rowData => {
         const row = document.createElement('tr');
         headers.forEach(header => {
             const cell = document.createElement('td');
@@ -50,10 +70,27 @@ function createTable(data) {
         tbody.appendChild(row);
     });
     table.appendChild(tbody);
-}
 
-// Fetch data on page load
-// fetchData(); // This will be called from index.html
+    // Add late fee note below the table if not already present
+    let note = document.getElementById('late-fee-note');
+    if (!note) {
+        note = document.createElement('div');
+        note.id = 'late-fee-note';
+        note.style.marginTop = '1rem';
+        note.style.fontSize = '1rem';
+        note.style.color = '#b91c1c';
+        note.setAttribute('role', 'note');
+        table.parentNode.appendChild(note);
+    }
+    note.textContent = 'Note: If maintenance is late, you need to pay an extra ₹50 after 10 days.';
+
+
+
+// Fetch data on page load and set up automatic refresh
+fetchData();
+
+// Automatically refresh data every 10 seconds (polling)
+setInterval(fetchData, 10000); // Adjust interval as needed
 
 // Admin login logic (moved from admin.html for better separation)
 document.addEventListener('DOMContentLoaded', () => {
@@ -166,4 +203,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+});}
